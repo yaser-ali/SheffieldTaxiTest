@@ -6,7 +6,7 @@ const port = 5000;
 // Middleware to parse JSON requests
 app.use(express.json());
 
-// Static files for React
+// Static files for React frontend
 app.use(express.static(path.join(__dirname, 'client/build')));
 
 // Sample questions categorized by difficulty
@@ -47,7 +47,7 @@ const questions = {
   ]
 };
 
-// AI-Driven Logic: Select question based on difficulty
+// AI-Driven Logic to select a question based on score
 function getQuestionBasedOnScore(score) {
   if (score < 2) {
     // Easy question if score is low
@@ -61,19 +61,27 @@ function getQuestionBasedOnScore(score) {
   }
 }
 
-// API to get questions dynamically based on user's score
+// API to get a question dynamically based on user's score
 app.post('/api/get-question', (req, res) => {
   const { score } = req.body;
+  
+  // Validate that score is provided
+  if (typeof score === 'undefined') {
+    return res.status(400).json({ error: "Score is required" });
+  }
+
   const selectedQuestion = getQuestionBasedOnScore(score);
+  
+  // Send the selected question as a response
   res.json(selectedQuestion);
 });
 
-// Serve React frontend
+// Serve React frontend for all other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client/build/index.html'));
 });
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 });
